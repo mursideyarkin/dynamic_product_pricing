@@ -1,6 +1,6 @@
-#######################################################
-# DYNAMIC PRICING FOR A NEW PRODUCT WITH AB TESTING
-########################################################
+###########################################################
+# DYNAMIC PRICING FOR A NEW PRODUCT WITH HYPOTHESIS TESTING
+############################################################
 
 # PROJECT STEPS:
 # 1. Import libraries & dataset
