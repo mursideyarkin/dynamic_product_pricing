@@ -1,6 +1,22 @@
-###############################
+#######################################################
+# DYNAMIC PRICING FOR A NEW PRODUCT WITH AB TESTING
+########################################################
+
+# PROJECT STEPS:
+# 1. Import libraries & dataset
+# 2. Data preprocessing
+# 3. Descriptive statistics
+# 4. Answers for the questions about pricing:
+    # Q1: Does the price of the item differ by categories?
+    # Q2: Depending on the first question, what should be the item price?
+    # Q3: It is desired to "be able to move" about the price. Create a decision support system for the price strategy.
+    # Q4: Simulate item purchases and income for possible price changes.
+
+#######################################################
 # STEP 1: IMPORT LIBRARIES & DATA SET
-###############################
+#######################################################
+
+import numpy as np
 import pandas as pd
 from scipy import stats
 import itertools
@@ -8,14 +24,12 @@ from matplotlib import pyplot as plt
 
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 
-# Import & copy data set:
-df_price = pd.read_csv("5th_week/homeworks/pricing.csv", sep=";")
-df_price.head()
-df = df_price.copy()
-
-###############################
+# Import set:
+df = pd.read_csv("pricing.csv", sep=";")
+df.head()
+#######################################################
 # STEP 2: DATA PREPROCESSING
-###############################
+#######################################################
 
 # Rounding prices:
 df["price"] = round(df["price"])
@@ -39,25 +53,30 @@ def replace_with_thresholds(dataframe, variable):
 # Replacing outliers with thresholds:
 replace_with_thresholds(df,"price")
 
-###############################
+#######################################################
 # STEP 3: DESCRIPTIVE STATISTICS
-###############################
+#######################################################
 
+# Looking the new price distribution:
 df["price"].describe([0.01,0.25,0.5,0.75,0.99]).T
+
+# Check medain value:
 df["price"].median()
 
+# Descriptive statistics of item price by categories:
 df_describe = df.groupby(["category_id"], as_index=False)["price"].agg({"sum","mean","median","count"})
 df_describe.reset_index(inplace=True)
-
 df_describe.sort_values("mean")
 
-###############################
-# STEP 4: ANSWERS for THE QUESTIONS:
-###############################
+#######################################################
+# STEP 4: ANSWERS for THE QUESTIONS ABOUT PRICING:
+#######################################################
 
 ####################################################
-# 1. DOES THE PRICE OF THE ITEM DIFFER BY CATEGORY?
+# Q1. DOES THE PRICE OF THE ITEM DIFFER BY CATEGORY?
 ####################################################
+
+# Since we compare prices of the item by categories, we can conduct a two-sample t-test to compare mean prices.
 
 # STEP1: DEFINE ALTERNATIVE AND NULL HYPOTHESIS
 
@@ -94,10 +113,6 @@ for i in df["category_id"].unique():
 # We need to create two combinations of all categories. (5-2 combination)
 category_list = list(itertools.combinations(df_describe['category_id'], 2))
 
-category_list[0][0]
-category_list[0][1]
-
-
 not_rejected = []
 rejected = []
 
@@ -111,8 +126,6 @@ for i in category_list:
         rejected.append(i)
         print(f"categories: {i}, p-value: {round(pvalue,2)}, then the null hypothesis is rejected.")
 
-df_describe.sort_values("mean")
-
 # for 201436, 361254, 326584, 675201 categories:
 # H0: There is no significant difference in the price averages of all categories. --> NOT REJECTED.
 
@@ -120,19 +133,21 @@ df_describe.sort_values("mean")
 # H0: There is no significant difference in the price averages of all categories. --> REJECTED.
 
 ########################################################################
-# 2. DEPENDING ON THE FIRST QUESTION, WHAT SHOULD BE THE ITEM PRICE?
+# Q2. DEPENDING ON THE FIRST QUESTION, WHAT SHOULD BE THE ITEM PRICE?
 ########################################################################
 
-df_describe
+df_describe.sort_values("mean")
 
-# When we checkout the descriptive statistics through categories, we can observe differences in mean, sum and count statistics.
-# Median values are close to each other.
-# If there is no hierarchical or participation fee difference between the categories, items price should be equal for all categories.
+# When we checkout the descriptive statistics through categories,
+# we can observe differences in mean, sum and count statistics. Median values are close to each other.
+# If there is no hierarchical or participation fee difference between the categories,
+# items price should be equal for all categories.
+
 df["price"].median()
 # Median Price: 35.0 can be used as price.
 
 ########################################################################################################
-# 3. IT IS DESIRED TO "BE ABLE TO MOVE" ABOUT THE PRICE. CREATE A DECISION SUPPORT SYSTEM FOR THE PRICE STRATEGY.
+# Q3. IT IS DESIRED TO "BE ABLE TO MOVE" ABOUT THE PRICE. CREATE A DECISION SUPPORT SYSTEM FOR THE PRICE STRATEGY.
 ########################################################################################################
 
 # According price and marketing strategy, different prices can be applied. For example:
@@ -149,9 +164,6 @@ treshold = 0.95
 max_min_index = len(df) * (1-treshold)/2
 min_price = df.loc[df.index == round(max_min_index),"price"]
 max_price = df.loc[df.index == (len(df) - round(max_min_index)), "price"]
-
-min_price.iloc[0]
-max_price.iloc[0]
 
 print(f" {round(treshold*100)}% of customers paid for item between {round(min_price.iloc[0])} and {round(max_price.iloc[0])}")
 
@@ -173,16 +185,13 @@ p = 1. * np.arange(len(data)) / (len(data) - 1)
 # plot the sorted data:
 fig = plt.figure()
 ax = fig.add_subplot()
-ax.plot(data_sorted, p)
+ax.plot(data, p)
 ax.set_xlabel('$x$')
 ax.set_ylabel('$p$')
 
 plt.show()
 
-
 # WHAT IS THE OPTIUMUM POINT FOR PROFIT?
-
-df.head()
 
 # 10 * len(df)
 a = [34480]
@@ -212,7 +221,7 @@ median_profit = len(df.loc[df["price"] >= median_value]) * median_value
 print(f"Profit for the median price is {median_profit}")
 
 #####################################################################
-# 4. SIMULATE ITEM PURCHASES AND INCOME FOR POSSIBLE PRICE CHANGES.
+# Q4. SIMULATE ITEM PURCHASES AND INCOME FOR POSSIBLE PRICE CHANGES.
 #####################################################################
 
 print(f"Minimum Price: {min_price.iloc[0]}, Profit: {round(profit_for_min_price)}, Number of customers: {cust_for_min_price} \n"
