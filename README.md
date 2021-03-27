@@ -1,5 +1,5 @@
 ## Project purpose:
-Creating a decision support system for the price strategy with the AB testing.
+Creating a decision support system for the price strategy with the hypothesis testing.
 
 ## Project details:
 
