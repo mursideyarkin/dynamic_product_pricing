@@ -1,7 +1,6 @@
 ###############################
 # STEP 1: IMPORT LIBRARIES & DATA SET
 ###############################
-import numpy as np
 import pandas as pd
 from scipy import stats
 import itertools
